@@ -88,19 +88,18 @@ board.on('ready', function(){
 	redLed.off();
 	yellowLed.off();
 	var socket = socketio.connect('http://websocket.notifica.re');
-	socket.on('subscribe', function(data) {
-		console.log(data);
-	});
-	socket.on('callback', function(data) {
+	socket.on(applicationKey, function(data) {
 		console.log(data);
 		if (data && data.action) {
 			waitIndicator(false);
 			if ('red' == data.action) {
 				redLed.on();
+				yellowLed.off();
 			} else if ('yellow' == data.action) {
 				yellowLed.on();
+				redLed.off();
 			}
 		}
 	});
-	socket.emit('subscribe', {applicationKey: applicationKey});
+	socket.emit('subscribe', applicationKey);
 });
