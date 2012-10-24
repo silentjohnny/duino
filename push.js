@@ -1,5 +1,6 @@
 var arduino = require('duino'),
 	request = require('request'),
+	socketio = require('socket.io-client'),
 	board = new arduino.Board({
 		debug: false
 	}),
@@ -73,7 +74,9 @@ var arduino = require('duino'),
 				redLed.fade(500);
 			}
 		});
-	}
+	};
+
+
 
 // Handle a button press
 button.on('down', buttonHandler);
@@ -84,4 +87,20 @@ board.on('ready', function(){
 	// Switch off the leds
 	redLed.off();
 	yellowLed.off();
+	var socket = socketio.connect('http://websocket.notifica.re');
+	socket.on('subscribe', function(data) {
+		console.log(data);
+	});
+	socket.on('callback', function(data) {
+		console.log(data);
+		if (data && data.action) {
+			waitIndicator(false);
+			if ('red' == data.action) {
+				redLed.on();
+			} else if ('yellow' == data.action) {
+				yellowLed.on();
+			}
+		}
+	});
+	socket.emit('subscribe', {applicationKey: applicationKey});
 });
